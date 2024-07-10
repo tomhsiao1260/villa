@@ -1,0 +1,20 @@
+scroll: [Scroll*/*.volpkg/]
+scripts: 
+  name:
+    - location: [location]
+    - docker_image
+    - script.py
+    - data:
+        - data_1: [regex_1/$(scroll)]
+        - data_n: [regex_n]
+    - args:
+        - volume: [xyz/$(data_i)/$(scroll)]
+  name2:
+    - location: [location]
+    - docker_image
+    - script.py
+    - data:
+        - data_1: [regex_1/$(scroll)]
+        - data_n: [regex_n]
+    - args:
+        - volume: [xyz/$(data_i)/$(scroll)]
