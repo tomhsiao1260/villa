@@ -53,7 +53,6 @@ class ScrollBuilder():
         for name in previous_match_result.re.groupindex.keys():
             # Use re.escape to safely insert the previous match into the regex
             filled_regex = filled_regex.replace(f"(?P<{name}>.*?)", re.escape(previous_match_result.group(name)))
-
         return filled_regex
     
     def search_filesystem(self, regex_pattern):
@@ -93,7 +92,6 @@ class ScrollBuilder():
 
         # Find unique matched patterns dicts
         matched_patterns = [dict(s) for s in set(frozenset(d.items()) for d in matched_patterns)]
-
         return matched_patterns
 
     def script_recomputation(self, script_config):
@@ -109,16 +107,19 @@ class ScrollBuilder():
     def build_commands(self, script, matched_patterns):
         # Builds docker and scrip commands
         script_configurations = []
+        # All unique execution permutations
         for matched_pattern in matched_patterns:
             script_configuration = {}
             commands = script['commands']
             for command in commands:
+                # Docker command
                 docker_command = command['docker_command']
                 for volume in docker_command['volumes']:
                     print(volume)
                     for key, value in volume.items():
                         volume[key] = self.build_command(value, matched_pattern)
                 script_configuration['docker_command'] = docker_command
+                # Script commands
                 script_commands = command['script_commands']
                 script_commands_list = []
                 for script_command in script_commands:
@@ -126,7 +127,6 @@ class ScrollBuilder():
                     script_commands_list.append(script_command)
                 script_configuration['script_commands'] = script_commands_list
             script_configurations.append(script_configuration) 
-
         # Unique script configurations
         return script_configurations
     
@@ -138,7 +138,6 @@ class ScrollBuilder():
         # Returns all permutations of the script configurations for execution of the script
         matched_patterns = self.match_permutations(script['permutations'], base_patterns)
         print(f"Matched Patterns: {matched_patterns}")
-
         return self.build_commands(script, matched_patterns)
     
     def run_docker_container(self, docker_command):
