@@ -11,33 +11,30 @@ The builder.yaml file contains definitions for variables, data paths, and script
 
 ```yaml
 base_path: "/media/julian/2"
-
-variables:
-  scroll: "[^/]*?.volpkg"
-  path_id: "scroll-builder-test_[0-9]+"
-  obj_id: "[0-9]+"
-  path: "${scroll}/${path_id}"
-
-permutations:
-  - "${path}/${obj_id}.obj"
-
 scripts:
   render_surface_volumes:
+    variables:
+      scroll: "[^/]*?.volpkg"
+      path_id: "scroll-builder-test_[0-9]+"
+      obj_id: "[0-9]+"
+      path: "${scroll}/${path_id}"
+    permutations:
+      - "${path}/${obj_id}.obj"
     commands:
       - command1:
-          docker_command:
-            name: "thaumato_image"
-            volumes:
-              - host_path: "${base_path}/${scroll}"
+        docker_command: 
+          volumes: 
+            -   host_path: "${base_path}/${scroll}"
                 container_path: "/scroll.volpkg"
-              - host_path: "/home/julian/gitThaumato/ThaumatoAnakalyptor/"
+            -   host_path: "/home/julian/gitThaumato/ThaumatoAnakalyptor/"
                 container_path: "/workspace"
-              - host_path: "/tmp/.X11-unix"
+            -   host_path: "/tmp/.X11-unix"
                 container_path: "/tmp/.X11-unix"
-            environment:
-              DISPLAY: "DISPLAY"
-          script_commands:
-            - "python3 -m ThaumatoAnakalyptor.mesh_to_surface /scroll.volpkg/${path_id}/${obj_id}.obj /scroll.volpkg/volumes/scroll1_grids --display"
+          environment:
+            DISPLAY: "DISPLAY"
+          name: "thaumato_image"
+        script_commands: 
+          - "python3 -m ThaumatoAnakalyptor.mesh_to_surface /scroll.volpkg/${path_id}/${obj_id}.obj /scroll.volpkg/volumes/scroll1_grids --display"
 
 ```
 
