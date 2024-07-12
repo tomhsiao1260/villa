@@ -12,13 +12,23 @@ class ScrollBuilder():
     def __init__(self, config_file='builder.yaml'):
         self.client = docker.from_env()
         self.config_file = config_file
-        self.config = self.load_config()
+        self.config = self.load_yaml(self.config_file)
         self.base_path = self.config.get('base_path', os.getcwd())
+        self.track_path = "tracked_paths_versions.yaml"
+        self.tracked_paths = self.load_yaml(self.track_path)
 
-    def load_config(self):
-        # Load the builder file
-        with open(self.config_file, 'r') as f:
-            return yaml.load(f, Loader=yaml.FullLoader)
+    def load_yaml(self, file):
+        # Load the yaml file
+        try:
+            with open(file, 'r') as f:
+                return yaml.load(f, Loader=yaml.FullLoader)
+        except FileNotFoundError:
+            return {}
+        
+    def save_yaml(self, file, data):
+        # Save the yaml file
+        with open(file, 'w') as f:
+            yaml.dump(data, f)
         
     def build_regex(self, variables, input_patterns={}):
         # parses the configuration arguments to valid regex patterns
@@ -95,13 +105,44 @@ class ScrollBuilder():
         return matched_patterns
 
     def script_recomputation(self, script_config):
-        # TODO: Check if the data changed since last computation
-        return True
+        recompute_allways = script_config.get('recompute_allways', False)
+        if recompute_allways:
+            return True
+        recompute_untracked = script_config.get('recompute_untracked', True)
+        on_change_paths = script_config.get('on_change', [])
+        for path in on_change_paths:
+            if not os.path.exists(path):
+                raise FileNotFoundError(f"Path {path} does not exist.")
+            # Get last modified time
+            last_modified = os.path.getmtime(path)
+            # Check if path is tracked
+            if path not in self.tracked_paths:
+                if recompute_untracked:
+                    return True
+            # Check if the path was modified since last computation
+            elif last_modified > self.tracked_paths[path]:
+                return True
+        return False
+    
+    def update_tracked_paths(self, script_config):
+        on_change_paths = script_config.get('on_change', [])
+        for path in on_change_paths:
+            if not os.path.exists(path):
+                raise FileNotFoundError(f"Path {path} does not exist.")
+            # Get last modified time
+            last_modified = os.path.getmtime(path)
+            # Add to tracked paths
+            self.tracked_paths[path] = last_modified
+        # Save Updated Tracked Paths
+        self.save_yaml(self.track_path, self.tracked_paths)
     
     def build_command(self, command_str, script_config):
         # Build the command, replace all variables with the matched patterns
         for key, value in script_config.items():
-            command_str = command_str.replace("${" + key + "}", value)
+            try:
+                command_str = command_str.replace("${" + key + "}", value)
+            except:
+                continue
         return command_str
     
     def build_commands(self, script, matched_patterns):
@@ -109,23 +150,31 @@ class ScrollBuilder():
         script_configurations = []
         # All unique execution permutations
         for matched_pattern in matched_patterns:
-            script_configuration = {}
+            script_configuration = {key: value for key, value in script.items()} # add all script configurations
+            # Build the on_change paths
+            on_change = script['on_change']
+            on_change_paths = []
+            for path in on_change:
+                on_change_paths.append(self.build_command(path, matched_pattern))
+            script_configuration['on_change'] = on_change_paths
+            # Build the commands
             commands = script['commands']
+            script_configuration['commands'] = []
             for command in commands:
+                command_dict = {}
                 # Docker command
                 docker_command = command['docker_command']
                 for volume in docker_command['volumes']:
-                    print(volume)
                     for key, value in volume.items():
                         volume[key] = self.build_command(value, matched_pattern)
-                script_configuration['docker_command'] = docker_command
+                command_dict['docker_command'] = docker_command
                 # Script commands
                 script_commands = command['script_commands']
                 script_commands_list = []
                 for script_command in script_commands:
-                    script_command = self.build_command(script_command, matched_pattern)
-                    script_commands_list.append(script_command)
-                script_configuration['script_commands'] = script_commands_list
+                    script_commands_list.append(self.build_command(script_command, matched_pattern))
+                command_dict['script_commands'] = script_commands_list
+                script_configuration['commands'].append(command_dict)
             script_configurations.append(script_configuration) 
         # Unique script configurations
         return script_configurations
@@ -150,11 +199,12 @@ class ScrollBuilder():
         # Volumes
         docker_volumes = docker_command['volumes']
         volumes = {
-            volume_dict['host_path']: {"bind": volume_dict['container_path'], "mode": "rw"}for volume_dict in docker_volumes
+            volume_dict['host_path']: {"bind": volume_dict['container_path'], "mode": "rw" if volume_dict['write_access'] else "ro"}for volume_dict in docker_volumes
         }
 
         # Run the Docker container
         try:
+            print(f"Starting container {docker_command['name']}")
             container = self.client.containers.run(
                 docker_command['name'],
                 "tail -f /dev/null",  # Keeps the container running for executing further commands
@@ -185,19 +235,17 @@ class ScrollBuilder():
         # Check if the script needs to be recomputed
         if not self.script_recomputation(script_config):
             return
+        
+        for command in script_config['commands']:
+            # Extract docker command and script commands from the configuration
+            docker_command = command['docker_command']
+            script_commands = command['script_commands']
 
-        # Extract docker command and script commands from the configuration
-        docker_command = script_config['docker_command']
-        script_commands = script_config['script_commands']
-
-        # Run the script
-        print(f"Running Script: {script_config}")
-
-        # Start Docker container
-        container = self.run_docker_container(docker_command)
-        if container:
-            # Execute scripts inside container
-            self.execute_script_inside_container(container, script_commands)
+            # Start Docker container
+            container = self.run_docker_container(docker_command)
+            if container:
+                # Execute scripts inside container
+                self.execute_script_inside_container(container, script_commands)
     
     def build(self):
         # Build all the output data formats
@@ -205,6 +253,8 @@ class ScrollBuilder():
             script_commands = self.get_script_commands(self.config['scripts'][script])
             for script_config in tqdm(script_commands, desc=f"Building {script}"):
                 self.run_script(script_config)
+                # Track the paths
+                self.update_tracked_paths(script_config)
 
 # Main
 if __name__ == '__main__':
@@ -212,4 +262,4 @@ if __name__ == '__main__':
     builder.build()
 
 # Example: python3 builder.py
-# Stopp all containers: sudo docker rm -f $(sudo docker ps -aq)
+# Stop all containers: sudo docker rm -f $(sudo docker ps -aq)
