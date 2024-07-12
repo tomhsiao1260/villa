@@ -23,8 +23,8 @@ scripts:
     on_change:
       - "${base_path}/${path}/${obj_id}.obj"
       - "/home/julian/gitThaumato/ThaumatoAnakalyptor/ThaumatoAnakalyptor/mesh_to_surface.py"
-    recompute_untracked: False
-    recompute_allways: True
+    recompute_untracked: True
+    recompute_allways: False
     commands:
       - command1:
         docker_command: 
@@ -46,8 +46,6 @@ scripts:
           name: "thaumato_image"
         script_commands: 
           - "python3 -m ThaumatoAnakalyptor.mesh_to_surface /scroll.volpkg/${path_id}/${obj_id}.obj /scroll.volpkg/volumes/scroll1_grids --display"
-
-
 ```
 
 
