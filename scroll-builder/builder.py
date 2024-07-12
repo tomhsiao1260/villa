@@ -120,7 +120,7 @@ class ScrollBuilder():
                 if recompute_untracked:
                     return True
             # Check if the path was modified since last computation
-            elif last_modified > self.tracked_paths[path]:
+            elif last_modified != self.tracked_paths[path]:
                 return True
         return False
     
@@ -199,7 +199,7 @@ class ScrollBuilder():
         # Volumes
         docker_volumes = docker_command['volumes']
         volumes = {
-            volume_dict['host_path']: {"bind": volume_dict['container_path'], "mode": "rw" if volume_dict['write_access'] else "ro"}for volume_dict in docker_volumes
+            volume_dict['host_path']: {"bind": volume_dict['container_path'], "mode": "rw" if volume_dict.get('write_access', False) else "ro"}for volume_dict in docker_volumes
         }
 
         # Run the Docker container

@@ -40,15 +40,12 @@ scripts:
                 write_access: True
             -   host_path: "/tmp/.X11-unix"
                 container_path: "/tmp/.X11-unix"
-                write_access: False
           environment:
             DISPLAY: "DISPLAY"
           name: "thaumato_image"
         script_commands: 
           - "python3 -m ThaumatoAnakalyptor.mesh_to_surface /scroll.volpkg/${path_id}/${obj_id}.obj /scroll.volpkg/volumes/scroll1_grids --display"
 ```
-
-
 
 ### Docker Configuration
 Docker images are used to compute derived data. Ensure that your Docker setup includes a valid Dockerfile and that file access control is enforced by setting appropriate read-only or read-write permissions on mounted volumes.

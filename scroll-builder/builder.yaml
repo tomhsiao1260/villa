@@ -28,7 +28,6 @@ scripts:
                 write_access: True
             -   host_path: "/tmp/.X11-unix"
                 container_path: "/tmp/.X11-unix"
-                write_access: False
           environment:
             DISPLAY: "DISPLAY"
           name: "thaumato_image"
