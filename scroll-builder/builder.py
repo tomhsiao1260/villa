@@ -201,6 +201,7 @@ class ScrollBuilder():
         volumes = {
             volume_dict['host_path']: {"bind": volume_dict['container_path'], "mode": "rw" if volume_dict.get('write_access', False) else "ro"}for volume_dict in docker_volumes
         }
+        print(f"volumes {volumes}")
 
         # Run the Docker container
         try:
