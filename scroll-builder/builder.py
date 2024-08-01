@@ -167,6 +167,7 @@ class ScrollBuilder():
                 for volume in docker_command['volumes']:
                     for key, value in volume.items():
                         volume[key] = self.build_command(value, matched_pattern)
+                        print(f"matched pattern: {matched_pattern}, vkey: {volume[key]}")
                 command_dict['docker_command'] = docker_command
                 # Script commands
                 script_commands = command['script_commands']
