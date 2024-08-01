@@ -37,7 +37,7 @@ scripts:
           - "python3 -m ThaumatoAnakalyptor.mesh_to_surface /scroll.volpkg/paths/${path_id}/${path_id}.obj /54keV_7.91um.zarr"
           - "sh -c 'cd /scroll.volpkg/paths/${path_id}/layers && ls'"
       - command2:
-        workspace: "./"
+        workspace: "/"
         docker_command:
           volumes:
             -   host_path: "${base_path}/${path_id}"
