@@ -187,7 +187,8 @@ class ScrollBuilder():
         # Returns all permutations of the script configurations for execution of the script
         matched_patterns = self.match_permutations(script['permutations'], base_patterns)
         print(f"Matched Patterns: {matched_patterns}")
-        return self.build_commands(script, matched_patterns)
+        built_commands = self.build_commands(script, matched_patterns)
+        print(f"built_commands {built_commands}")
     
     def run_docker_container(self, docker_command):
         # Environment variables
