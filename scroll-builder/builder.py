@@ -74,7 +74,6 @@ class ScrollBuilder():
             dirpath = dirpath[len(self.base_path)+1:]
             for filename in filenames:
                 full_path = os.path.join(dirpath, filename)
-                # print(dirpath, dirnames, filename, full_path)
                 match = compiled_regex.search(full_path)
                 if match:
                     match_dict = match.groupdict()
@@ -160,21 +159,13 @@ class ScrollBuilder():
             # Build the commands
             commands = deepcopy(script['commands'])
             script_configuration['commands'] = []
-            if i < 2:
-                print(f"commands: {commands[:2]}")
             for command in commands:
                 command_dict = {}
                 # Docker command
                 docker_command = command['docker_command']
-                if i < 2:
-                    print(docker_command['volumes'])
                 for volume in docker_command['volumes']:
                     for key, value in volume.items():
-                        if i < 2:
-                            print(value, matched_pattern)
                         volume[key] = self.build_command(deepcopy(value), matched_pattern)
-                        if i < 2:
-                            print(f"matched pattern: {matched_pattern}, vkey: {volume[key]}")
                 command_dict['docker_command'] = docker_command
                 # Script commands
                 script_commands = command['script_commands']
@@ -196,7 +187,6 @@ class ScrollBuilder():
         matched_patterns = self.match_permutations(script['permutations'], base_patterns)
         print(f"Matched Patterns: {matched_patterns}")
         built_commands = self.build_commands(script, matched_patterns)
-        print(f"built_commands {built_commands[:2]}")
         return built_commands
     
     def run_docker_container(self, docker_command):
@@ -211,7 +201,6 @@ class ScrollBuilder():
         volumes = {
             volume_dict['host_path']: {"bind": volume_dict['container_path'], "mode": "rw" if volume_dict.get('write_access', False) else "ro"}for volume_dict in docker_volumes
         }
-        print(f"volumes {volumes}")
 
         # Run the Docker container
         try:
