@@ -164,6 +164,8 @@ class ScrollBuilder():
                 command_dict = {}
                 # Docker command
                 docker_command = command['docker_command']
+                if i < 2:
+                    print(docker_command['volumes'])
                 for volume in docker_command['volumes']:
                     for key, value in volume.items():
                         if i < 2:
