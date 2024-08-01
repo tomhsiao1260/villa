@@ -160,7 +160,8 @@ class ScrollBuilder():
             # Build the commands
             commands = script['commands']
             script_configuration['commands'] = []
-            print(f"commands: {commands[:2]}")
+            if i < 2:
+                print(f"commands: {commands[:2]}")
             for command in commands:
                 command_dict = {}
                 # Docker command
