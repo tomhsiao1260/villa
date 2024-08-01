@@ -161,6 +161,8 @@ class ScrollBuilder():
             script_configuration['commands'] = []
             for command in commands:
                 command_dict = {}
+                # Workspace
+                command_dict['workspace'] = command['workspace']
                 # Docker command
                 docker_command = command['docker_command']
                 for volume in docker_command['volumes']:
@@ -222,11 +224,11 @@ class ScrollBuilder():
             print(f"Failed to start the container: {e}")
             return None
 
-    def execute_script_inside_container(self, container, script_commands):
+    def execute_script_inside_container(self, container, script_commands, workspace):
         try:
             for command in script_commands:
                 print(f"Executing command inside container: {command}")
-                exec_log = container.exec_run(command, workdir="/workspace")
+                exec_log = container.exec_run(command, workdir=workspace)
                 print("Output:", exec_log.output.decode())
         except Exception as e:
             print("Failed to execute script inside Docker:", e)
@@ -240,12 +242,13 @@ class ScrollBuilder():
             # Extract docker command and script commands from the configuration
             docker_command = command['docker_command']
             script_commands = command['script_commands']
+            workspace = command['workspace']
 
             # Start Docker container
             container = self.run_docker_container(docker_command)
             if container:
                 # Execute scripts inside container
-                self.execute_script_inside_container(container, script_commands)
+                self.execute_script_inside_container(container, script_commands, workspace)
     
     def build(self):
         # Build all the output data formats
