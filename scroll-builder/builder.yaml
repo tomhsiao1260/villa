@@ -19,7 +19,7 @@ scripts:
                 write_access: True
             -   host_path: "/app/scrolls/ThaumatoAnakalyptor/"
                 container_path: "/workspace"
-                write_access: False
+                write_access: True
             -   host_path: "/mnt/localdisk/scrolls/1/54keV_7.91um.zarr"
                 container_path: "/54keV_7.91um.zarr"
                 write_access: False
