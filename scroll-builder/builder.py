@@ -155,7 +155,7 @@ class ScrollBuilder():
             on_change = script['on_change']
             on_change_paths = []
             for path in on_change:
-                on_change_paths.append(self.build_command(path, matched_pattern))
+                on_change_paths.append(self.build_command(deepcopy(path), matched_pattern))
             script_configuration['on_change'] = on_change_paths
             # Build the commands
             commands = script['commands']
@@ -166,7 +166,7 @@ class ScrollBuilder():
                 docker_command = command['docker_command']
                 for volume in docker_command['volumes']:
                     for key, value in volume.items():
-                        volume[key] = self.build_command(value, matched_pattern)
+                        volume[key] = self.build_command(deepcopy(value), matched_pattern)
                         if i < 2:
                             print(f"matched pattern: {matched_pattern}, vkey: {volume[key]}")
                 command_dict['docker_command'] = docker_command
@@ -174,7 +174,7 @@ class ScrollBuilder():
                 script_commands = command['script_commands']
                 script_commands_list = []
                 for script_command in script_commands:
-                    script_commands_list.append(self.build_command(f"script_command", matched_pattern))
+                    script_commands_list.append(self.build_command(deepcopy(script_command), matched_pattern))
                 command_dict['script_commands'] = script_commands_list
                 script_configuration['commands'].append(command_dict)
             script_configurations.append(script_configuration) 
