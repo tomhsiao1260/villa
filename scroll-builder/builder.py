@@ -174,7 +174,7 @@ class ScrollBuilder():
                 script_commands = command['script_commands']
                 script_commands_list = []
                 for script_command in script_commands:
-                    script_commands_list.append(self.build_command(script_command, matched_pattern))
+                    script_commands_list.append(self.build_command(f"script_command", matched_pattern))
                 command_dict['script_commands'] = script_commands_list
                 script_configuration['commands'].append(command_dict)
             script_configurations.append(script_configuration) 
