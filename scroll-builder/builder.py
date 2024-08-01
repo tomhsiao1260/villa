@@ -149,7 +149,7 @@ class ScrollBuilder():
         # Builds docker and scrip commands
         script_configurations = []
         # All unique execution permutations
-        for matched_pattern in matched_patterns:
+        for i, matched_pattern in enumerate(matched_patterns):
             script_configuration = {key: value for key, value in script.items()} # add all script configurations
             # Build the on_change paths
             on_change = script['on_change']
@@ -167,7 +167,8 @@ class ScrollBuilder():
                 for volume in docker_command['volumes']:
                     for key, value in volume.items():
                         volume[key] = self.build_command(value, matched_pattern)
-                        print(f"matched pattern: {matched_pattern}, vkey: {volume[key]}")
+                        if i < 2:
+                            print(f"matched pattern: {matched_pattern}, vkey: {volume[key]}")
                 command_dict['docker_command'] = docker_command
                 # Script commands
                 script_commands = command['script_commands']
