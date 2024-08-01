@@ -152,13 +152,13 @@ class ScrollBuilder():
         for i, matched_pattern in enumerate(matched_patterns):
             script_configuration = {key: value for key, value in script.items()} # add all script configurations
             # Build the on_change paths
-            on_change = script['on_change']
+            on_change = deepcopy(script['on_change'])
             on_change_paths = []
             for path in on_change:
                 on_change_paths.append(self.build_command(deepcopy(path), matched_pattern))
             script_configuration['on_change'] = on_change_paths
             # Build the commands
-            commands = script['commands']
+            commands = deepcopy(script['commands'])
             script_configuration['commands'] = []
             if i < 2:
                 print(f"commands: {commands[:2]}")
