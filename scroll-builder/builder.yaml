@@ -55,7 +55,7 @@ scripts:
             CV_IO_MAX_IMAGE_PIXELS: "4294967295"
           name: "scroll2zarr"
         script_commands:
-          - "sudo python3 scroll_to_ome.py /scroll.volpkg/paths/${path_id}/layers /scroll.volpkg/paths/${path_id}.zarr"
+          - "python3 scroll_to_ome.py /scroll.volpkg/paths/${path_id}/layers /scroll.volpkg/paths/${path_id}.zarr"
 # sudo docker run -it --rm --shm-size=150g -v /home/data/public/full-scrolls:/scrolls -v /home/giorgio/output:/output scroll2zarr python scroll_to_ome.py /scrolls/Scroll2/PHercParis3.volpkg/volumes/20230212125146 /output --standardize
 # base_path: "/media/julian/2"
 # scripts:
