@@ -18,7 +18,7 @@ scripts:
                 write_access: True
             -   host_path: "/app/scrolls/ThaumatoAnakalyptor/"
                 container_path: "/workspace"
-                write_access: True
+                write_access: False
             -   host_path: "/mnt/localdisk/scrolls/1/54keV_7.91um.zarr"
                 container_path: "/54keV_7.91um.zarr"
                 write_access: False
@@ -35,6 +35,25 @@ scripts:
           - "sh -c 'cd /scroll.volpkg/paths/${path_id} && mkdir -p layers && cd layers && ls'"
           - "python3 -m ThaumatoAnakalyptor.mesh_to_surface /scroll.volpkg/paths/${path_id}/${path_id}.obj /54keV_7.91um.zarr"
           - "sh -c 'cd /scroll.volpkg/paths/${path_id}/layers && ls'"
+      - command2:
+        docker_command:
+          volumes:
+            -   host_path: "${base_path}/${path_id}"
+                container_path: "/scroll.volpkg/paths/${path_id}"
+                write_access: True
+            -   host_path: "/mnt/localdisk/scrolls/1/54keV_7.91um.zarr"
+                container_path: "/54keV_7.91um.zarr"
+                write_access: False
+            -   host_path: "/tmp/.X11-unix"
+                container_path: "/tmp/.X11-unix"
+          environment:
+            DISPLAY: "DISPLAY"
+            MAX_TILE_SIZE: "200000000000"
+            OPENCV_IO_MAX_IMAGE_PIXELS: "4294967295"
+            CV_IO_MAX_IMAGE_PIXELS: "4294967295"
+          name: "scroll2zarr"
+        script_commands:
+          - "sudo python3 scroll_to_ome.py /scroll.volpkg/paths/${path_id}/layers /scroll.volpkg/paths/${path_id}.zarr"
 # base_path: "/media/julian/2"
 # scripts:
 #   render_surface_volumes:
