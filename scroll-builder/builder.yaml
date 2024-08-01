@@ -34,7 +34,7 @@ scripts:
         script_commands:
           - "sh -c 'cd /scroll.volpkg/paths && ls'"
           - "sh -c 'cd /scroll.volpkg/paths/${path_id} && mkdir -p layers && cd layers && ls && rm -rf *'"
-          - "python3 -m ThaumatoAnakalyptor.mesh_to_surface /scroll.volpkg/paths/${path_id}/${path_id}.obj /54keV_7.91um.zarr --format tif"
+          - "python3 -m ThaumatoAnakalyptor.mesh_to_surface /scroll.volpkg/paths/${path_id}/${path_id}.obj /54keV_7.91um.zarr --format jpg"
           - "sh -c 'cd /scroll.volpkg/paths/${path_id}/layers && ls'"
       - command2:
         workspace: ""
