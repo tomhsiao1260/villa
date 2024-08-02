@@ -257,7 +257,10 @@ class ScrollBuilder():
             for script_config in tqdm(script_commands, desc=f"Building {script}"):
                 self.run_script(script_config)
                 # Track the paths
-                self.update_tracked_paths(script_config)
+                try:
+                    self.update_tracked_paths(script_config)
+                except:
+                    pass
 
 # Main
 if __name__ == '__main__':
