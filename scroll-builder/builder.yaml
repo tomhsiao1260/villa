@@ -2,7 +2,7 @@ base_path: "/mnt/localdisk/scrolls/Scroll1.volpkg/paths"
 scripts:
   render_surface_volumes:
     variables:
-      path_id_: "[0-9a-z_]+"
+      path_id_: "[0-9a-z_]+_superseded"
       path_id: "[0-9]+"
     permutations:
       - "${path_id_}/${path_id}.obj"
