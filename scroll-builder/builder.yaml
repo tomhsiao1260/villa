@@ -41,7 +41,7 @@ scripts:
         workspace: ""
         docker_command:
           volumes:
-            -   host_path: "${base_path}/${path_id}"
+            -   host_path: "${base_path}/${path_id_}"
                 container_path: "/scroll.volpkg/paths/${path_id}"
                 write_access: True
             -   host_path: "/mnt/localdisk/scrolls/1/54keV_7.91um.zarr"
