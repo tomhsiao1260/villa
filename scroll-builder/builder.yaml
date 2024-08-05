@@ -2,11 +2,12 @@ base_path: "/mnt/localdisk/scrolls/Scroll1.volpkg/paths"
 scripts:
   render_surface_volumes:
     variables:
+      path_id_: "[0-9,a-z]+"
       path_id: "[0-9]+"
     permutations:
-      - "${path_id}/.*"
+      - "${path_id_}/${path_id}.obj"
     on_change:
-      - "${base_path}/${path_id}/${path_id}.obj"
+      - "${base_path}/${path_id_}/${path_id}.obj"
     recompute_untracked: True
     recompute_allways: True
     commands:
@@ -14,7 +15,7 @@ scripts:
         workspace: "/workspace"
         docker_command:
           volumes:
-            -   host_path: "${base_path}/${path_id}"
+            -   host_path: "${base_path}/${path_id_}"
                 container_path: "/scroll.volpkg/paths/${path_id}"
                 write_access: True
             -   host_path: "/app/scrolls/ThaumatoAnakalyptor/"
