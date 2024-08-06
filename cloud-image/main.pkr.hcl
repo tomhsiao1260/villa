@@ -20,7 +20,7 @@ source "amazon-ebs" "small_instance" {
   ami_block_device_mappings {
     device_name = "/dev/sda1"
     # TODO: change this accordingly
-    volume_size = 30  # in GB, ~0.08 USD/GB/month
+    volume_size = 30  # in GB, ~0.08 USD/GB/month... this is never loaded?
     delete_on_termination = true
     volume_type = "gp3"
   }
@@ -30,8 +30,28 @@ build {
   sources = ["source.amazon-ebs.small_instance"]
 
   # Run the set up script
+
+  # Currently not working
+  provisioner "shell" {
+    inline = [
+      "sudo apt-get update",
+      "sudo apt-get install -y cloud-guest-utils",
+      "df -h",
+      "lsblk"
+    #  "sudo growpart /dev/nvme0n1 1",
+    #  "lsblk",
+    #  "sudo resize2fs /dev/nvme0n1p1",
+    #  "df -h"
+    ]
+  }
+
   provisioner "shell" {
     script = "scripts/install_dependencies.sh"
+  }
+
+  # We run out of space while installing the repositories
+  provisioner "shell" {
+    script = "scripts/install_repositories.sh"
   }
 
   # Optionally, add more scripts to run here...
