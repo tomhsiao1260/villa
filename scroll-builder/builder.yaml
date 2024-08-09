@@ -38,7 +38,7 @@ scripts:
       #     - "python3 -m ThaumatoAnakalyptor.mesh_to_surface /scroll.volpkg/paths/${path_id}/${path_id}.obj /54keV_7.91um.zarr --format jpg"
       #     - "sh -c 'cd /scroll.volpkg/paths/${path_id}/layers && ls'"
       - command2:
-        workspace: ""
+        workspace: "/workspace"
         docker_command:
           volumes:
             -   host_path: "${base_path}/${path_id_}"
@@ -48,7 +48,7 @@ scripts:
                 container_path: "/54keV_7.91um.zarr"
                 write_access: False
             -   host_path: "/mnt/localdisk/julian/scroll2zarr/"
-                container_path: "/"
+                container_path: "/workspace"
                 write_access: True
             -   host_path: "/tmp/.X11-unix"
                 container_path: "/tmp/.X11-unix"
