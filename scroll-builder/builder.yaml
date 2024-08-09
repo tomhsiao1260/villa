@@ -48,7 +48,7 @@ scripts:
                 container_path: "/54keV_7.91um.zarr"
                 write_access: False
             -   host_path: "/mnt/localdisk/julian/scroll2zarr/"
-                container_path: ""
+                container_path: "/"
                 write_access: True
             -   host_path: "/tmp/.X11-unix"
                 container_path: "/tmp/.X11-unix"
