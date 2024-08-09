@@ -58,7 +58,7 @@ scripts:
         script_commands:
           - "sh -c 'cd /scroll.volpkg/paths && rm -rf ${path_id}.zarr'"
           - "sh -c 'cd /scroll.volpkg/paths/${path_id} && rm -rf ${path_id}.zarr'"
-          - "python3 scroll_to_ome.py /scroll.volpkg/paths/${path_id}/layers /scroll.volpkg/paths/${path_id}/${path_id}.zarr --chunk_size 512 512 4"
+          - "python3 scroll_to_ome.py /scroll.volpkg/paths/${path_id}/layers /scroll.volpkg/paths/${path_id}/${path_id}.zarr --chunk_size '512 512 4'"
 # sudo docker run -it --rm --shm-size=150g -v /home/data/public/full-scrolls:/scrolls -v /home/giorgio/output:/output scroll2zarr python scroll_to_ome.py /scrolls/Scroll2/PHercParis3.volpkg/volumes/20230212125146 /output --standardize
 # base_path: "/media/julian/2"
 # scripts:
