@@ -9,7 +9,7 @@ scripts:
     on_change:
       - "${base_path}/${path_id_}/${path_id}.obj"
     recompute_untracked: True
-    recompute_allways: False
+    recompute_allways: True
     commands:
       - command1:
         workspace: "/workspace"
