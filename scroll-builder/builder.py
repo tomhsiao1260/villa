@@ -253,15 +253,17 @@ class ScrollBuilder():
     def build(self):
         # Build all the output data formats
         for script in self.config['scripts']:
-            script_commands = self.get_script_commands(self.config['scripts'][script])
-            for script_config in tqdm(script_commands, desc=f"Building {script}"):
-                self.run_script(script_config)
-                # Track the paths
-                try:
-                    self.update_tracked_paths(script_config)
-                except:
-                    pass
-
+            try:
+                script_commands = self.get_script_commands(self.config['scripts'][script])
+                for script_config in tqdm(script_commands, desc=f"Building {script}"):
+                    try:
+                        self.run_script(script_config)
+                        # Track the paths
+                        self.update_tracked_paths(script_config)
+                    except:
+                        pass
+            except:
+                print(f"Failed to build {script}")
 # Main
 if __name__ == '__main__':
     builder = ScrollBuilder()
