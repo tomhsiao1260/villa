@@ -17,12 +17,12 @@ source "amazon-ebs" "small_instance" {
   # TODO: Uncomment the below when we want to make the AMI publicly available
   # ami_groups   = ["all"]  # Make the AMI public
 
-  ami_block_device_mappings {
+  launch_block_device_mappings {
     device_name = "/dev/sda1"
     # TODO: change this accordingly
-    volume_size = 30  # in GB, ~0.08 USD/GB/month... this is never loaded?
+    volume_size           = 30 # in GB, ~0.08 USD/GB/month... this is never loaded?
     delete_on_termination = true
-    volume_type = "gp3"
+    volume_type           = "gp3"
   }
 }
 
@@ -36,12 +36,10 @@ build {
     inline = [
       "sudo apt-get update",
       "sudo apt-get install -y cloud-guest-utils",
+      "echo 'df -h'",
       "df -h",
+      "echo 'lsblk'",
       "lsblk"
-    #  "sudo growpart /dev/nvme0n1 1",
-    #  "lsblk",
-    #  "sudo resize2fs /dev/nvme0n1p1",
-    #  "df -h"
     ]
   }
 
