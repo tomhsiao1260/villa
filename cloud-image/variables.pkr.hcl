@@ -15,3 +15,10 @@ variable "aws_instance_type" {
   type        = string
   default     = "t2.micro"
 }
+
+# Uncomment this and comment the type before to use GPU
+#variable "aws_instance_type" {
+#  description = "The instance type to use for the AMI"
+#  type        = string
+#  default     = "g4dn.xlarge"
+#}
