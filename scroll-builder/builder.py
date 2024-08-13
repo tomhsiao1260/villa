@@ -15,6 +15,7 @@ class ScrollBuilder():
         self.config_file = config_file
         self.config = self.load_yaml(self.config_file)
         self.base_path = self.config.get('base_path', os.getcwd())
+        self.runtime = self.config.get('runtime', 'nvidia')
         self.track_path = "tracked_paths_versions.yaml"
         self.tracked_paths = self.load_yaml(self.track_path)
 
@@ -211,7 +212,7 @@ class ScrollBuilder():
             container = self.client.containers.run(
                 docker_command['name'],
                 "tail -f /dev/null",  # Keeps the container running for executing further commands
-                runtime="nvidia",  # This is needed to utilize GPU
+                runtime=self.runtime,  # This is needed to utilize GPU optionally
                 shm_size='150g',  # Setting the shared memory size to 150GB
                 environment=environment,
                 volumes=volumes,
