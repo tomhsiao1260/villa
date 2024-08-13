@@ -163,7 +163,7 @@ class ScrollBuilder():
             for command in commands:
                 command_dict = {}
                 # Workspace
-                command_dict['workspace'] = command['workspace']
+                command_dict['workspace'] = command.get('workspace', '')
                 # Docker command
                 docker_command = command['docker_command']
                 for volume in docker_command['volumes']:
