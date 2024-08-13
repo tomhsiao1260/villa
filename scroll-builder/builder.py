@@ -36,8 +36,9 @@ class ScrollBuilder():
         # parses the configuration arguments to valid regex patterns
         def replace_regex(regex, patterns):
             # Replace any placeholders with the completed regex patterns of earlier variables
-            for name, pattern in patterns.items():
-                regex = regex.replace("${" + name + "}", pattern)
+            while any(f"${{{name}}}" in regex for name in patterns):
+                for name, pattern in patterns.items():
+                    regex = regex.replace("${" + name + "}", pattern)
             return regex
         
         completed_patterns = {}
