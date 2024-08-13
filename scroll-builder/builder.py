@@ -101,8 +101,6 @@ class ScrollBuilder():
         matched_patterns = []
         for match in matches:
             base_patterns_ = deepcopy(base_patterns)
-            # After a successful match, use fill_regex to generate the next regex pattern
-            base_patterns_ = self.fill_regex(base_patterns_, match)
             base_patterns_.update(match)
             matched_patterns += self.match_permutations(permutations[1:], base_patterns_)
 
