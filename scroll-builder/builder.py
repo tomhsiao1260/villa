@@ -263,8 +263,8 @@ class ScrollBuilder():
                         self.update_tracked_paths(script_config)
                     except:
                         pass
-            except:
-                print(f"Failed to build {script}")
+            except Exception as e:
+                print(f"Failed to build {script} with error: {e}")
 # Main
 if __name__ == '__main__':
     # argparse config file
