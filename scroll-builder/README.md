@@ -1,6 +1,12 @@
 # scroll-builder
 Scroll-Builder facilitates server-side processing on scroll data, updating derived data whenever input data or computation scripts change. It utilizes Docker to ensure a consistent and isolated environment for computations.
 
+Clone the repository:
+
+```bash
+git clone --recurse-submodules https://github.com/ScrollPrize/scroll-builder
+```
+
 ## Configuration and Setup
 The behavior of the Scroll-Builder is configured via a builder.yaml file, which dictates how scripts are executed based on the filesystem's state and the specifics of the data processing requirements.
 
