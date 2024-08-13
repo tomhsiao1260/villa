@@ -63,9 +63,11 @@ class ScrollBuilder():
         """
         # Construct the regex dynamically based on previous matches
         filled_regex = regex
-        for name in previous_match_result.re.groupindex.keys():
-            # Use re.escape to safely insert the previous match into the regex
-            filled_regex = filled_regex.replace(f"(?P<{name}>.*?)", re.escape(previous_match_result.group(name)))
+        for name, value in previous_match_result.groupdict().items():
+            # Replace the named group in the regex with the captured value from previous_match_result
+            # Use re.escape to ensure that any special characters in the value are escaped properly
+            if value is not None:
+                filled_regex = filled_regex.replace(f"(?P<{name}>.*?)", re.escape(value))
         return filled_regex
     
     def search_filesystem(self, regex_pattern):
@@ -99,6 +101,8 @@ class ScrollBuilder():
         matched_patterns = []
         for match in matches:
             base_patterns_ = deepcopy(base_patterns)
+            # After a successful match, use fill_regex to generate the next regex pattern
+            base_patterns_ = self.fill_regex(base_patterns_, match)
             base_patterns_.update(match)
             matched_patterns += self.match_permutations(permutations[1:], base_patterns_)
 
