@@ -4,6 +4,7 @@ import yaml
 import re
 from tqdm import tqdm
 from copy import deepcopy
+import argparse
 
 class ScrollBuilder():
     """
@@ -266,7 +267,13 @@ class ScrollBuilder():
                 print(f"Failed to build {script}")
 # Main
 if __name__ == '__main__':
-    builder = ScrollBuilder()
+    # argparse config file
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', type=str, default='builder.yaml', help='Configuration file for the builder.')
+
+    args = parser.parse_args()
+
+    builder = ScrollBuilder(config_file=args.config)
     builder.build()
 
 # Example: python3 builder.py
