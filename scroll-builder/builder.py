@@ -77,7 +77,7 @@ class ScrollBuilder():
         for dirpath, dirnames, filenames in tqdm(os.walk(self.base_path)):
             # remove base part of path
             dirpath = dirpath[len(self.base_path)+1:]
-            for filename in filenames:
+            for filename in sorted(filenames):
                 full_path = os.path.join(dirpath, filename)
                 match = compiled_regex.search(full_path)
                 if match:
