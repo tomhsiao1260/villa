@@ -243,7 +243,7 @@ class ScrollBuilder():
             # Extract docker command and script commands from the configuration
             docker_command = command['docker_command']
             script_commands = command['script_commands']
-            workspace = command['workspace']
+            workspace = command.get('workspace', '')
 
             # Start Docker container
             container = self.run_docker_container(docker_command)
