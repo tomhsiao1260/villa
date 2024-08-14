@@ -60,9 +60,12 @@ build {
     script = "scripts/install_dependencies.sh"
   }
 
-  # We run out of space while installing the repositories
+  #provisioner "shell" {
+  #  script = "scripts/install_repositories.sh"
+  #}
+
   provisioner "shell" {
-    script = "scripts/install_repositories.sh"
+    script = "scripts/load_s3disk.sh"
   }
 
   # Optionally, add more scripts to run here...

@@ -102,7 +102,7 @@ sudo apt-get install -y nvidia-docker2 nvidia-container-runtime || log_and_exit 
 sudo systemctl restart docker || log_and_exit "Failed to restart Docker service after installing NVIDIA dependencies. Exiting."
 
 # Uncomment to install Thaumato on GPU Instance
-#sudo docker build -t thaumato_image -f DockerfileThaumato . || log_and_exit "Failed to build Docker image for ThaumatoAnakalyptor. Exiting."
+sudo docker build -t thaumato_image -f DockerfileThaumato . || log_and_exit "Failed to build Docker image for ThaumatoAnakalyptor. Exiting."
 cd ..
 
 # Check disk space
@@ -129,5 +129,12 @@ df -h
 echo "Installing Meshlab..."
 sudo apt-get update || log_and_exit "Failed to update package list for Meshlab. Exiting."
 sudo apt-get install -y meshlab || log_and_exit "Failed to install Meshlab. Exiting."
+
+# Vesuvius
+echo "Installing vesuvius scaffold..."
+conda create -n vesuvius python=3.12 -y || log_and_exit "Failed to create Vesuvius environment"
+conda activate vesuvius
+conda install jupyter matplotlib
+pip install vesuvius
 
 echo "Installation completed!"
