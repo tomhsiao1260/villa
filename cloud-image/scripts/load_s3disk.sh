@@ -1,22 +1,42 @@
+# Install s3fs and set up mount points
 sudo apt install -y s3fs
 
-# Create a directory where the S3 bucket will be mounted
-sudo mkdir /mnt/scrolls
-sudo mkdir /mnt/annotated-instances
+# Create directories where the S3 buckets will be mounted
+sudo mkdir -p /mnt/scrolls
+sudo mkdir -p /mnt/annotated-instances
 
-# Note: Replace 'ACCESS_KEY_ID' and 'SECRET_ACCESS_KEY' with your actual AWS credentials
-echo ACCESS_KEY_ID:SECRET_ACCESS_KEY > ~/.passwd-s3fs
-chmod 600 ~/.passwd-s3fs
+# Set up AWS credentials for s3fs
+echo ACCESS_KEY_ID:SECRET_ACCESS_KEY > /home/ubuntu/.passwd-s3fs
+sudo chmod 600 /home/ubuntu/.passwd-s3fs
 
-# Mount the S3 buckets to the directory
-sudo s3fs herculaneum-scrolls /mnt/scrolls -o use_cache=/tmp -o allow_other -o use_path_request_style -o url=https://s3.amazonaws.com -o passwd_file=~/.passwd-s3fs -o uid=1000 -o gid=1000 -o umask=0022 -o mp_umask=0022
-sudo s3fs herculaneum-annotated-instances /mnt/annotated-instances -o use_cache=/tmp -o allow_other -o use_path_request_style -o url=https://s3.amazonaws.com -o passwd_file=~/.passwd-s3fs -o uid=1000 -o gid=1000 -o umask=0022 -o mp_umask=0022
+# Load fuse module
+echo "fuse" | sudo tee -a /etc/modules
 
-# Add the mount to /etc/fstab for automatic mounting on reboot
-# This ensures that the S3 bucket is mounted automatically after a reboot
-echo "s3fs#herculaneum-scrolls /mnt/scrolls fuse.s3fs _netdev,allow_other,use_cache=/tmp,umask=0022,uid=1000,gid=1000,url=https://s3.amazonaws.com,passwd_file=/home/ec2-user/.passwd-s3fs 0 0" | sudo tee -a /etc/fstab
-echo "s3fs#herculaneum-annotated-instances /mnt/annotated-instances fuse.s3fs _netdev,allow_other,use_cache=/tmp,umask=0022,uid=1000,gid=1000,url=https://s3.amazonaws.com,passwd_file=/home/ec2-user/.passwd-s3fs 0 0" | sudo tee -a /etc/fstab
+# Test the mount manually to ensure everything is working
+sudo s3fs herculaneum-scrolls /mnt/scrolls -o ro,use_cache=/tmp,allow_other,use_path_request_style,url=https://s3.amazonaws.com,passwd_file=/home/ubuntu/.passwd-s3fs,uid=1000,gid=1000,umask=0022,mp_umask=0022
+sudo s3fs herculaneum-annotated-instances /mnt/annotated-instances -o ro,use_cache=/tmp,allow_other,use_path_request_style,url=https://s3.amazonaws.com,passwd_file=/home/ubuntu/.passwd-s3fs,uid=1000,gid=1000,umask=0022,mp_umask=0022
 
+# Create a systemd service file to mount the S3 buckets at startup
+sudo bash -c 'cat <<EOF > /etc/systemd/system/mount-s3.service
+[Unit]
+Description=Mount S3 Buckets at startup
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/s3fs herculaneum-scrolls /mnt/scrolls -o ro,use_cache=/tmp,allow_other,use_path_request_style,url=https://s3.amazonaws.com,passwd_file=/home/ubuntu/.passwd-s3fs,uid=1000,gid=1000,umask=0022,mp_umask=0022
+ExecStart=/usr/bin/s3fs herculaneum-annotated-instances /mnt/annotated-instances -o ro,use_cache=/tmp,allow_other,use_path_request_style,url=https://s3.amazonaws.com,passwd_file=/home/ubuntu/.passwd-s3fs,uid=1000,gid=1000,umask=0022,mp_umask=0022
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF'
+
+# Enable the service so it runs at every boot
+sudo systemctl enable mount-s3.service
+
+# Proceed with the rest of your script
 # Ensure Conda is available
 MINICONDA_PREFIX=/usr/local/miniconda
 eval "$($MINICONDA_PREFIX/bin/conda shell.bash hook)"
@@ -28,7 +48,7 @@ echo "Installing vesuvius scaffold..."
 conda create -n vesuvius python=3.12 -y || log_and_exit "Failed to create Vesuvius environment"
 conda activate vesuvius
 conda install jupyter matplotlib
-pip install vesuvius==0.1.4
+pip install vesuvius==0.1.4c
 vesuvius.accept_terms --yes
 
 echo "Installation complete"
