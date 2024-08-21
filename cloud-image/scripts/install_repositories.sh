@@ -54,11 +54,11 @@ sudo apt-get install -y libgl1-mesa-dev || log_and_exit "Failed installing GL dr
 echo "Installing khartes using Conda..."
 git clone https://github.com/KhartesViewer/khartes.git || log_and_exit "Failed to clone khartes repository. Exiting."
 cd khartes || log_and_exit "Failed to change directory to khartes. Exiting."
-git fetch --all
+git fetch --alls
 git checkout khartes3d-beta
 conda create -n khartes_env python=3.12 -y || log_and_exit "Failed to create Conda environment for khartes. Exiting."
 conda activate khartes_env
-conda install -c menpo opencv -y || log_and_exit "Failed to install opencv. Exiting."
+pip install opencv-python || log_and_exit "Failed to install opencv. Exiting."
 conda install pyqt zarr tifffile scipy pyopengl -y || log_and_exit "Failed to install libraries. Exiting."
 pip install pynrrd rectpack || log_and_exit "Failed to install pynrrd and rectpack. Exiting."
 conda deactivate
@@ -102,7 +102,7 @@ sudo apt-get install -y nvidia-docker2 nvidia-container-runtime || log_and_exit 
 sudo systemctl restart docker || log_and_exit "Failed to restart Docker service after installing NVIDIA dependencies. Exiting."
 
 # Uncomment to install Thaumato on GPU Instance
-sudo docker build -t thaumato_image -f DockerfileThaumato . || log_and_exit "Failed to build Docker image for ThaumatoAnakalyptor. Exiting."
+#sudo docker build -t thaumato_image -f DockerfileThaumato . || log_and_exit "Failed to build Docker image for ThaumatoAnakalyptor. Exiting."
 cd ..
 
 # Check disk space

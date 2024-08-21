@@ -1,7 +1,7 @@
 variable "ami_name" {
   description = "The name of the AMI"
   type        = string
-  default     = "vesuvius-challenge-s3test"
+  default     = "vesuvius-challenge-cloud-image"
 }
 
 variable "aws_region" {

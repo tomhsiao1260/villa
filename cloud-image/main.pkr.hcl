@@ -3,9 +3,6 @@ source "amazon-ebs" "small_instance" {
   instance_type = var.aws_instance_type
   region        = var.aws_region
 
-  # This will find and use the latest Ubuntu 20.04 image
-  #  TODO: We will want to change that to a GPU-instance base image later
-
   source_ami_filter {
     filters = {
       name                = "ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"
@@ -13,13 +10,13 @@ source "amazon-ebs" "small_instance" {
       virtualization-type = "hvm"
     }
     most_recent = true
-    owners      = ["099720109477"] # Canonical
+   owners      = ["099720109477"] # Canonical
   }
   
   #Uncomment this and comment before for GPU Instance
   #source_ami_filter {
   #  filters = {
-  #    name                = "Deep Learning AMI GPU PyTorch*"
+  #    name                = "Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.3.0 (Ubuntu 20.04) 20240818"
   #    root-device-type    = "ebs"
   #    virtualization-type = "hvm"
   #  }
@@ -34,7 +31,7 @@ source "amazon-ebs" "small_instance" {
   launch_block_device_mappings {
     device_name = "/dev/sda1"
     # TODO: change this accordingly
-    volume_size           = 30 # in GB, ~0.08 USD/GB/month... this is never loaded?
+    volume_size           = 30 # in GB, ~0.08 USD/GB/month... the PyTorch AMI requires 45GB but free tier up to 30GB?
     delete_on_termination = true
     volume_type           = "gp3"
   }
@@ -60,13 +57,12 @@ build {
     script = "scripts/install_dependencies.sh"
   }
 
-  #provisioner "shell" {
-  #  script = "scripts/install_repositories.sh"
-  #}
+  provisioner "shell" {
+    script = "scripts/install_repositories.sh"
+  }
 
   provisioner "shell" {
     script = "scripts/load_s3disk.sh"
   }
 
-  # Optionally, add more scripts to run here...
 }
