@@ -101,8 +101,11 @@ sudo apt-get update
 sudo apt-get install -y nvidia-docker2 nvidia-container-runtime || log_and_exit "Failed to install NVIDIA Docker dependencies. Exiting."
 sudo systemctl restart docker || log_and_exit "Failed to restart Docker service after installing NVIDIA dependencies. Exiting."
 
-# Uncomment to install Thaumato on GPU Instance
-#sudo docker build -t thaumato_image -f DockerfileThaumato . || log_and_exit "Failed to build Docker image for ThaumatoAnakalyptor. Exiting."
+# Checking space
+df -h
+
+# Uncomment to install Thaumato on GPU Instance (can work ok CPU?)
+sudo docker pull scrollprize/thaumato_image:latest|| log_and_exit "Failed to pull Docker image for tomato. Exiting."
 cd ..
 
 # Check disk space

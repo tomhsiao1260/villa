@@ -1,7 +1,7 @@
 variable "ami_name" {
   description = "The name of the AMI"
   type        = string
-  default     = "vesuvius-challenge-cloud-image"
+  default     = "vesuvius-challenge-cloud-image-gpu"
 }
 
 variable "aws_region" {
@@ -10,15 +10,15 @@ variable "aws_region" {
   default     = "us-east-1" # N. Virginia
 }
 
-variable "aws_instance_type" {
-  description = "The instance type to use for the AMI"
-  type        = string
-  default     = "t2.micro"
-}
-
-# Uncomment this and comment the type before to use GPU
 #variable "aws_instance_type" {
 #  description = "The instance type to use for the AMI"
 #  type        = string
-#  default     = "g4dn.xlarge"
+#  default     = "t2.micro"
 #}
+
+# Uncomment this and comment the type before to use GPU
+variable "aws_instance_type" {
+  description = "The instance type to use for the AMI"
+  type        = string
+  default     = "g4dn.xlarge"
+}
