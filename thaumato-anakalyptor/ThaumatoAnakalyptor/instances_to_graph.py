@@ -1,6 +1,7 @@
 ### Julian Schilliger - ThaumatoAnakalyptor - Vesuvius Challenge 2024
 
 import numpy as np
+from numba import njit
 from tqdm import tqdm
 import pickle
 import glob
@@ -31,6 +32,72 @@ import sys
 ### C++ speed up Random Walks
 sys.path.append('ThaumatoAnakalyptor/sheet_generation/build')
 import sheet_generation
+
+@njit
+def numba_mean_axis0(X):
+    """
+    Compute the mean of a 2D array along axis 0 manually for Numba compatibility.
+    """
+    n_rows, n_cols = X.shape
+    mean_values = np.zeros(n_cols, dtype=X.dtype)
+    
+    for col in range(n_cols):
+        col_sum = 0.0
+        for row in range(n_rows):
+            col_sum += X[row, col]
+        mean_values[col] = col_sum / n_rows
+    
+    return mean_values
+
+@njit
+def numba_norm(arr, axis=1):
+    """
+    Custom implementation of np.linalg.norm for Numba, supporting axis argument.
+    Computes the Euclidean norm along the specified axis.
+    """
+    if axis == 1:
+        # Calculate the norm along rows (for 2D array)
+        return np.sqrt(np.sum(arr ** 2, axis=1))
+    elif axis == 0:
+        # Calculate the norm along columns (for 2D array)
+        return np.sqrt(np.sum(arr ** 2, axis=0))
+    else:
+        raise ValueError("Unsupported axis. Use 0 or 1.")
+    
+@njit
+def geometric_median_(X, eps=1e-5):
+    """
+    Compute the geometric median of a set of points using Weiszfeld's algorithm,
+    avoiding unsupported NumPy features in Numba.
+    """
+    # Manually compute mean along axis 0
+    y = numba_mean_axis0(X)
+    
+    while True:
+        # Compute distances (norms) from all points to the current median estimate
+        D = numba_norm(X - y, axis=1)
+        non_zeros = (D != 0)
+        
+        if not non_zeros.any():
+            return y
+        
+        D_inv = 1 / D[non_zeros]
+        T = np.sum(X[non_zeros] * D_inv[:, None], axis=0) / np.sum(D_inv)
+        
+        if numba_norm(y - T, axis=0) < eps:
+            return T
+        
+        y = T
+
+def closest_to_geometric_median(X):
+    """
+    Compute the closest point to geometric median in the original pointset
+    """
+    y = geometric_median_(X)
+    D_T = numba_norm(X - y, axis=1)
+    min_idx = np.argmin(D_T)
+    closest_point = X[min_idx]
+    return closest_point
 
 def unit_vector(vector):
     """ Returns the unit vector of the vector.  """
@@ -526,8 +593,8 @@ def score_same_block_patches(patch1, patch2, overlapp_threshold, umbilicus_dista
     score = score_val * overlapp_threshold["winding_switch_sheet_score_factor"]
 
     # Centroid distance between patches
-    centroid1 = np.mean(patch1["points"], axis=0)
-    centroid2 = np.mean(patch2["points"], axis=0)
+    centroid1 = closest_to_geometric_median(patch1["points"])
+    centroid2 = closest_to_geometric_median(patch2["points"])
     centroid_distance = np.linalg.norm(centroid1 - centroid2)
 
     # Check for enough points
@@ -579,10 +646,10 @@ def process_same_block(main_block_patches_list, overlapp_threshold, umbilicus_di
                 continue
             (score_, k_), anchor_angle1, anchor_angle2 = score_same_block_patches(main_block_patches_list[i], main_block_patches_list[j], overlapp_threshold, umbilicus_distance)
             if score_ > 0.0:
-                score_switching_sheets_.append((main_block_patches_list[i]['ids'][0], main_block_patches_list[j]['ids'][0], score_, k_, anchor_angle1, anchor_angle2, np.mean(main_block_patches_list[i]["points"], axis=0), np.mean(main_block_patches_list[j]["points"], axis=0)))
+                score_switching_sheets_.append((main_block_patches_list[i]['ids'][0], main_block_patches_list[j]['ids'][0], score_, k_, anchor_angle1, anchor_angle2, closest_to_geometric_median(main_block_patches_list[i]["points"]), closest_to_geometric_median(main_block_patches_list[j]["points"])))
 
             # Add bad edges
-            score_bad_edges.append((main_block_patches_list[i]['ids'][0], main_block_patches_list[j]['ids'][0], 1.0, 0.0, anchor_angle1, anchor_angle2, np.mean(main_block_patches_list[i]["points"], axis=0), np.mean(main_block_patches_list[j]["points"], axis=0)))
+            score_bad_edges.append((main_block_patches_list[i]['ids'][0], main_block_patches_list[j]['ids'][0], 1.0, 0.0, anchor_angle1, anchor_angle2, closest_to_geometric_median(main_block_patches_list[i]["points"]), closest_to_geometric_median(main_block_patches_list[j]["points"])))
 
         # filter and only take the scores closest to the main patch (smallest scores) for each k in +1, -1
         direction1_scores = [score for score in score_switching_sheets_ if score[3] > 0.0]
@@ -640,8 +707,8 @@ def process_block(args):
     file_path, path_instances, overlapp_threshold, umbilicus_data = args
     umbilicus_func = lambda z: umbilicus_xz_at_y(umbilicus_data, z)
     def umbilicus_distance(patch1, patch2):
-        centroid1 = np.mean(patch1["points"], axis=0)
-        centroid2 = np.mean(patch2["points"], axis=0)
+        centroid1 = closest_to_geometric_median(patch1["points"])
+        centroid2 = closest_to_geometric_median(patch2["points"])
         def d_(patch_centroid):
             umbilicus_point = umbilicus_func(patch_centroid[1])
             patch_centroid_vec = patch_centroid - umbilicus_point
@@ -653,7 +720,7 @@ def process_block(args):
 
     patches_centroids = {}
     for patch in main_block_patches_list:
-        patches_centroids[tuple(patch["ids"][0])] = np.mean(patch["points"], axis=0)
+        patches_centroids[tuple(patch["ids"][0])] = closest_to_geometric_median(patch["points"])
 
     # Extract block's integer ID
     block_id = [int(i) for i in file_path.split('/')[-1].split('.')[0].split("_")]
@@ -684,7 +751,7 @@ def process_block(args):
                 patches_list_ = [main_block_patch, surrounding_block_patch]
                 score_ = score_other_block_patches(patches_list_, 0, 1, overlapp_threshold) # score, anchor_angle1, anchor_angle2
                 if score_[0] > overlapp_threshold["final_score_min"]:
-                    score_sheets_patch.append((main_block_patch['ids'][0], surrounding_block_patch['ids'][0], score_[0], None, score_[1], score_[2], np.mean(main_block_patch["points"], axis=0), np.mean(surrounding_block_patch["points"], axis=0)))
+                    score_sheets_patch.append((main_block_patch['ids'][0], surrounding_block_patch['ids'][0], score_[0], None, score_[1], score_[2], closest_to_geometric_median(main_block_patch["points"]), closest_to_geometric_median(surrounding_block_patch["points"])))
 
             # Find the best score for each main block patch
             if len(score_sheets_patch) > 0:
