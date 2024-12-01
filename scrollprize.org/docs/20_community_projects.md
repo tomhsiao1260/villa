@@ -177,7 +177,11 @@ For state-of-the-art updates join our [Discord server](https://discord.com/invit
 
 - [Point cloud extraction method comparer](https://github.com/giorgioangel/vesuvius-compare/) by Giorgio Angelotti. Tool to compare different point cloud extraction methods.
 
+- [Pipeline Visualize](https://github.com/Dalufishe/vc-pipeline) by Yao Hsiao and Dalufishe. Local-first pipeline interface with intermediate output visualization.
+
 - [Pipeline Visualize](https://github.com/tomhsiao1260/pipeline-visualize) by Yao Hsiao. Tool to visualize the first steps of the Thaumato Anakalyptor pipeline.
+
+- [Field-based visualization](https://github.com/tomhsiao1260/field-based-visualization) by Yao Hsiao. A new approach to visualize 3D data by adjusting potential fields based on internal features like edges, fibers or segments. 
 
 - [Cell viewer and segmentation comparison](https://discord.com/channels/1079907749569237093/1162822294415097907/threads/1167722091781554290) by Yao Hsiao
 
